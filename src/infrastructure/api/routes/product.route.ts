@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import CreateProductUseCase from "../../../usecase/product/create/create.product.usecase";
 import ProductRepository from "../../product/repository/sequelize/product.repository";
 import ListProductUseCase from "../../../usecase/product/list/list.product.usecase";
+import ProductPresenter from "../presenters/product.presenter";
 
 export const productRoute = express.Router();
 
@@ -26,7 +27,10 @@ productRoute.get("/", async (req: Request, res: Response) => {
     const useCase = new ListProductUseCase(new ProductRepository());
     const output = await useCase.execute({});
 
-    res.json(output);
+    res.format({
+      json: async () => res.status(200).send(output),
+      xml: async () => res.status(200).send(ProductPresenter.listXML(output)),
+    })
   } catch (error) {
     res.status(500).json(error);
   };
